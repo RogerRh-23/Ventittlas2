@@ -21,9 +21,19 @@
 
     <main class="site-main">
         <section class="featured-products">
+            <h2>Lo más vendido</h2>
+            <div class="products-grid" data-products data-filter="best_seller" data-limit="6"></div>
+        </section>
 
-            <script src="js/include.js"></script>
-            <script src="scripts/main.js"></script>
+        <section class="featured-products">
+            <h2>Para el hogar</h2>
+            <div class="products-grid" data-products data-department="hogar" data-limit="6"></div>
+        </section>
+    </main>
+
+    <script src="js/include.js"></script>
+    <script src="js/products_list.js"></script>
+    <script src="scripts/main.js"></script>
 </body>
 
 </html>
