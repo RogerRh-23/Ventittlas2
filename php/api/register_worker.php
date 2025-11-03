@@ -33,7 +33,8 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 try {
-    $stmt = $pdo->prepare('SELECT id FROM Usuarios WHERE correo_electronico = ? LIMIT 1');
+    // use SELECT 1 to avoid relying on a specific 'id' column name
+    $stmt = $pdo->prepare('SELECT 1 FROM Usuarios WHERE correo_electronico = ? LIMIT 1');
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
         http_response_code(409);
