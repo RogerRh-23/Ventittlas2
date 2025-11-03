@@ -71,43 +71,72 @@
 	</main>
 
 	<script>
+	// postJSON: envía JSON y devuelve { status, ok, body }
 	async function postJSON(url, data) {
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(data)
 		});
-		return res.json().catch(() => ({ ok: false, message: 'Respuesta no JSON' }));
+		let body = null;
+		try { body = await res.json(); } catch (e) { body = null; }
+		return { status: res.status, ok: res.ok, body };
 	}
 
 	document.getElementById('form-cliente').addEventListener('submit', async (e) => {
 		e.preventDefault();
+		// mapear a los nombres que esperan los endpoints PHP
 		const data = {
-			full_name: e.target.full_name.value.trim(),
-			phone: e.target.phone.value.trim(),
-			email: e.target.email.value.trim(),
-			password: e.target.password.value,
-			address: e.target.address.value.trim()
+			nombre: e.target.full_name.value.trim(),
+			telefono: e.target.phone.value.trim(),
+			correo_electronico: e.target.email.value.trim(),
+			contrasena: e.target.password.value,
+			direccion: e.target.address.value.trim()
 		};
 		const msg = document.getElementById('cliente_msg');
 		msg.textContent = 'Enviando...';
 		const r = await postJSON('/php/api/register_client.php', data);
-		msg.textContent = r.ok ? 'Cliente registrado correctamente' : ('Error: ' + (r.message || 'Falló registro'));
+		if (r.ok) {
+			// preferir body.message/ message, success/ok flags if existen
+			if (r.body && (r.body.success === true || r.body.ok === true)) {
+				msg.textContent = 'Cliente registrado correctamente';
+			} else if (r.body && (r.body.message || r.body.error)) {
+				msg.textContent = r.body.message || r.body.error;
+			} else if (r.body) {
+				msg.textContent = 'Registro completado (respuesta inesperada): ' + JSON.stringify(r.body);
+			} else {
+				msg.textContent = 'Registro completado (sin JSON devuelto).';
+			}
+		} else {
+			msg.textContent = 'Error HTTP ' + r.status + (r.body && (r.body.message || r.body.error) ? (': ' + (r.body.message || r.body.error)) : '');
+		}
 	});
 
 	document.getElementById('form-trabajador').addEventListener('submit', async (e) => {
 		e.preventDefault();
 		const data = {
-			full_name: e.target.full_name.value.trim(),
-			phone: e.target.phone.value.trim(),
-			email: e.target.email.value.trim(),
-			password: e.target.password.value,
+			nombre: e.target.full_name.value.trim(),
+			telefono: e.target.phone.value.trim(),
+			correo_electronico: e.target.email.value.trim(),
+			contrasena: e.target.password.value,
 			rfc: e.target.rfc.value.trim()
 		};
 		const msg = document.getElementById('trab_msg');
 		msg.textContent = 'Enviando...';
 		const r = await postJSON('/php/api/register_worker.php', data);
-		msg.textContent = r.ok ? 'Trabajador registrado correctamente' : ('Error: ' + (r.message || 'Falló registro'));
+		if (r.ok) {
+			if (r.body && (r.body.success === true || r.body.ok === true)) {
+				msg.textContent = 'Trabajador registrado correctamente';
+			} else if (r.body && (r.body.message || r.body.error)) {
+				msg.textContent = r.body.message || r.body.error;
+			} else if (r.body) {
+				msg.textContent = 'Registro completado (respuesta inesperada): ' + JSON.stringify(r.body);
+			} else {
+				msg.textContent = 'Registro completado (sin JSON devuelto).';
+			}
+		} else {
+			msg.textContent = 'Error HTTP ' + r.status + (r.body && (r.body.message || r.body.error) ? (': ' + (r.body.message || r.body.error)) : '');
+		}
 	});
 	</script>
 </body>
