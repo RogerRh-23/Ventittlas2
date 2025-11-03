@@ -1,6 +1,3 @@
-// Styles for admin user registration page
-// Uses global variables from `_variables.scss` (colors, fonts)
-
 .container {
 	max-width: 1100px;
 	margin: 2.5rem auto;
@@ -19,7 +16,7 @@ section {
 	background: #fff;
 	border-radius: 12px;
 	padding: 1.25rem 1.5rem;
-	box-shadow: 0 6px 18px rgba(25,25,25,0.06);
+	box-shadow: 0 6px 18px rgba(25, 25, 25, 0.06);
 	margin-bottom: 1.5rem;
 }
 
@@ -54,7 +51,6 @@ input[type="tel"] {
 	box-sizing: border-box;
 }
 
-/* Inputs that should take full width under labels that span two columns */
 form label:nth-child(5),
 form label:nth-child(10) {
 	grid-column: 1 / -1;
@@ -79,20 +75,28 @@ button[type="submit"] {
 	font-weight: $button-font-weight;
 	font-size: 1rem;
 	cursor: pointer;
-	box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
 }
 
 button[type="submit"]:hover {
 	filter: brightness(1.03);
 }
 
-/* Responsive: stack form fields on small screens */
 @media (max-width: 760px) {
-	.container { padding: 1rem; }
-	form { grid-template-columns: 1fr; }
-	button[type="submit"] { width: 100%; }
+	.container {
+		padding: 1rem;
+	}
+
+	form {
+		grid-template-columns: 1fr;
+	}
+
+	button[type="submit"] {
+		width: 100%;
+	}
 }
 
-/* small utility */
-.muted { color: lighten($black, 40%); font-size: 0.9rem; }
-
+.muted {
+	color: lighten($black, 40%);
+	font-size: 0.9rem;
+}

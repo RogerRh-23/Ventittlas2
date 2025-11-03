@@ -1,18 +1,19 @@
 <!doctype html>
 <html lang="es">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title>Admin - Registro de Usuarios</title>
 	<link rel="stylesheet" href="/styles/main.css">
 </head>
+
 <body>
 	<main class="container">
 		<h1>Panel de administración — Registro de usuarios</h1>
 
 		<section id="registro">
 			<h2>Registrar Usuario</h2>
-			<!-- Formulario unificado: sólo los campos que existen en la tabla Usuarios -->
 			<form id="form-registro">
 				<label>Nombre completo<br>
 					<input type="text" name="nombre" id="nombre" required>
@@ -42,44 +43,43 @@
 	</main>
 
 	<script>
-	// postJSON: envía JSON y devuelve { status, ok, body }
-	async function postJSON(url, data) {
-		const res = await fetch(url, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(data)
-		});
-		let body = null;
-		try { body = await res.json(); } catch (e) { body = null; }
-		return { status: res.status, ok: res.ok, body };
-	}
-
-	// Formulario unificado
-	document.getElementById('form-registro').addEventListener('submit', async (e) => {
-		e.preventDefault();
-		const data = {
-			nombre: e.target.nombre.value.trim(),
-			correo_electronico: e.target.correo_electronico.value.trim(),
-			contrasena: e.target.contrasena.value,
-			rol: e.target.rol.value
-		};
-		const msg = document.getElementById('registro_msg');
-		msg.textContent = 'Enviando...';
-		const r = await postJSON('/php/api/register_user.php', data);
-		if (r.ok) {
-			if (r.body && (r.body.success === true || r.body.ok === true)) {
-				msg.textContent = 'Usuario registrado correctamente';
-			} else if (r.body && (r.body.message || r.body.error)) {
-				msg.textContent = r.body.message || r.body.error;
-			} else if (r.body) {
-				msg.textContent = 'Registro completado (respuesta inesperada): ' + JSON.stringify(r.body);
-			} else {
-				msg.textContent = 'Registro completado (sin JSON devuelto).';
-			}
-		} else {
-			msg.textContent = 'Error HTTP ' + r.status + (r.body && (r.body.message || r.body.error) ? (': ' + (r.body.message || r.body.error)) : '');
+		async function postJSON(url, data) {
+			const res = await fetch(url, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data)
+			});
+			let body = null;
+			try { body = await res.json(); } catch (e) { body = null; }
+			return { status: res.status, ok: res.ok, body };
 		}
-	});
+
+		document.getElementById('form-registro').addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const data = {
+				nombre: e.target.nombre.value.trim(),
+				correo_electronico: e.target.correo_electronico.value.trim(),
+				contrasena: e.target.contrasena.value,
+				rol: e.target.rol.value
+			};
+			const msg = document.getElementById('registro_msg');
+			msg.textContent = 'Enviando...';
+			const r = await postJSON('/php/api/register_user.php', data);
+			if (r.ok) {
+				if (r.body && (r.body.success === true || r.body.ok === true)) {
+					msg.textContent = 'Usuario registrado correctamente';
+				} else if (r.body && (r.body.message || r.body.error)) {
+					msg.textContent = r.body.message || r.body.error;
+				} else if (r.body) {
+					msg.textContent = 'Registro completado (respuesta inesperada): ' + JSON.stringify(r.body);
+				} else {
+					msg.textContent = 'Registro completado (sin JSON devuelto).';
+				}
+			} else {
+				msg.textContent = 'Error HTTP ' + r.status + (r.body && (r.body.message || r.body.error) ? (': ' + (r.body.message || r.body.error)) : '');
+			}
+		});
 	</script>
 </body>
+
 </html>
