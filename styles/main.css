@@ -110,7 +110,7 @@ h6 {
   flex-direction: column;
   align-items: flex-start;
   text-align: center;
-  color: #ffffff;
+  color: #ffffff !important;
   pointer-events: none;
 }
 
@@ -118,12 +118,14 @@ h6 {
   font-size: 3.5rem;
   margin: 0 0 8px 0;
   pointer-events: auto;
+  color: #ffffff !important;
 }
 
 .header-container p {
   font-size: 2.5rem;
   margin: 0;
   pointer-events: auto;
+  color: #ffffff !important;
 }
 
 .site-navbar {
@@ -394,6 +396,7 @@ h6 {
   max-width: 480px;
   padding: 24px;
   box-sizing: border-box;
+  background-color: transparent;
 }
 
 .login-card {
@@ -561,7 +564,6 @@ input[type=tel] {
   box-sizing: border-box;
 }
 
-/* Inputs that should take full width under labels that span two columns */
 form label:nth-child(5),
 form label:nth-child(10) {
   grid-column: 1/-1;
@@ -593,7 +595,6 @@ button[type=submit]:hover {
   filter: brightness(1.03);
 }
 
-/* Responsive: stack form fields on small screens */
 @media (max-width: 760px) {
   .container {
     padding: 1rem;
@@ -605,7 +606,6 @@ button[type=submit]:hover {
     width: 100%;
   }
 }
-/* small utility */
 .muted {
   color: #7f7f7f;
   font-size: 0.9rem;
