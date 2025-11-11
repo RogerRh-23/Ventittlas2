@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventario — Admin</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+</head>
+
+<body>
+    <div data-include="../../components/sidebar.html"></div>
+    <h1>Inventario de productos</h1>
+    <p class="muted">Lista de productos con su ID, nombre, precio y cantidad disponible. Si no hay stock se mostrará
+        <strong>Sin existencia</strong>.
+    </p>
+
+    <div id="inventory-container">
+        <div class="table-wrap">
+            <table id="inventory-table" aria-describedby="inventory-desc">
+                <caption id="inventory-desc" style="caption-side:top;text-align:left;padding-bottom:8px"></caption>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- filas cargadas dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="inventory-empty" class="empty" style="display:none">No se encontraron productos.</div>
+    </div>
+
+    <script src="../../js/include.js"></script>
+    <script src="../../js/sidebar.js"></script>
+    <script>
+        async function loadInventory() {
+            const tbody = document.querySelector('#inventory-table tbody');
+            const empty = document.getElementById('inventory-empty');
+            const caption = document.querySelector('#inventory-table caption');
+            caption.textContent = 'Actualizando...';
+            try {
+                const res = await fetch('/php/api/products.php');
+                if (!res.ok) throw new Error('Error fetching products: ' + res.status);
+                const data = await res.json();
+                // Expecting array of products
+                if (!Array.isArray(data) || data.length === 0) {
+                    document.querySelector('#inventory-table thead').style.display = 'table-header-group';
+                    tbody.innerHTML = '';
+                    caption.textContent = '';
+                    empty.style.display = 'block';
+                    return;
+                }
+                empty.style.display = 'none';
+                tbody.innerHTML = '';
+                caption.textContent = `Mostrando ${data.length} producto(s)`;
+                data.forEach(p => {
+                    const tr = document.createElement('tr');
+                    const idTd = document.createElement('td');
+                    idTd.textContent = p.id_producto ?? p.id ?? '';
+                    tr.appendChild(idTd);
+
+                    const nameTd = document.createElement('td');
+                    nameTd.textContent = p.nombre ?? p.name ?? '';
+                    tr.appendChild(nameTd);
+
+                    const priceTd = document.createElement('td');
+                    const price = (p.precio !== undefined && p.precio !== null) ? Number(p.precio).toFixed(2) : '';
+                    priceTd.textContent = price ? `€ ${price}` : '';
+                    tr.appendChild(priceTd);
+
+                    const stockTd = document.createElement('td');
+                    const stockVal = (p.stock !== undefined && p.stock !== null) ? Number(p.stock) : null;
+                    if (stockVal === null) {
+                        stockTd.textContent = '—';
+                    } else if (stockVal <= 0) {
+                        stockTd.textContent = 'Sin existencia';
+                        stockTd.style.color = '#c00';
+                    } else {
+                        stockTd.textContent = String(stockVal);
+                    }
+                    tr.appendChild(stockTd);
+
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+                caption.textContent = '';
+                empty.style.display = 'block';
+                empty.textContent = 'Error cargando productos — abre la consola para más detalles.';
+            }
+        }
+
+        // load on page ready
+        document.addEventListener('DOMContentLoaded', loadInventory);
+    </script>
+</body>
+
+</html>
