@@ -63,7 +63,10 @@ try {
         }
     }
 
-    $insert = $pdo->prepare('INSERT INTO Productos (nombre, descripcion, precio, stock, id_categoria, id_vendedor, estado) VALUES (?, ?, ?, ?, ?, NULL, ?)');
+    // fecha_publicacion y descuento_activo añadidos para coincidir con la estructura de la tabla
+    // id_vendedor se deja NULL por defecto aquí (puede añadirse si el usuario autenticado proporciona un id)
+    $fecha_publicacion = date('Y-m-d H:i:s');
+    $insert = $pdo->prepare('INSERT INTO Productos (nombre, descripcion, precio, stock, id_categoria, id_vendedor, fecha_publicacion, estado, descuento_activo) VALUES (?, ?, ?, ?, ?, NULL, NOW(), ?, 0)');
     $insert->execute([$nombre, $descripcion, $precio, $stock, $id_categoria, $estado]);
     $newId = (int)$pdo->lastInsertId();
 
@@ -72,15 +75,18 @@ try {
     http_response_code(201);
     echo json_encode([
         'ok' => true,
-        'id' => $newId,
+        'id_producto' => $newId,
         'product' => [
-            'id' => $newId,
+            'id_producto' => $newId,
             'nombre' => $nombre,
             'descripcion' => $descripcion,
             'precio' => (float)$precio,
             'stock' => $stock,
             'id_categoria' => $id_categoria,
+            'id_vendedor' => null,
+            'fecha_publicacion' => $fecha_publicacion,
             'estado' => $estado,
+            'descuento_activo' => 0,
         ],
     ], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
