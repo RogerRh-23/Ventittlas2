@@ -55,7 +55,7 @@ try {
 
     // optional: return redirect path based on role
     $redirect = '/index.html';
-    if ($user['rol'] === 'administrador') $redirect = '/pages/admin.html';
+    if ($user['rol'] === 'administrador' || $user['rol'] === 'vendedor') $redirect = '/pages/admin.html';
 
     echo json_encode(['ok' => true, 'message' => 'Autenticado', 'rol' => $user['rol'], 'redirect' => $redirect]);
 } catch (PDOException $e) {

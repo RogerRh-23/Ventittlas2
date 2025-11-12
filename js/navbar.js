@@ -58,6 +58,31 @@
 
         // Initial check in case the page loads scrolled
         checkScroll();
+
+        // ---- User session handling: replace login link with user name if logged ----
+        (async function updateUserLink() {
+            try {
+                const res = await fetch('/php/api/session.php', { credentials: 'same-origin' });
+                const j = await res.json().catch(() => null);
+                if (j && j.ok && j.user) {
+                    const user = j.user;
+                    const navItem = document.getElementById('nav-login-item');
+                    const navLink = document.getElementById('nav-login-link');
+                    const navLabel = document.getElementById('nav-login-label');
+                    if (navItem && navLink && navLabel) {
+                        navLabel.textContent = user.nombre || user.correo || 'Usuario';
+                        // set destination based on role
+                        if (user.rol === 'administrador' || user.rol === 'vendedor') {
+                            navLink.setAttribute('href', '/pages/admin.html');
+                        } else {
+                            navLink.setAttribute('href', '/index.html');
+                        }
+                    }
+                }
+            } catch (e) {
+                // ignore
+            }
+        })();
     }
 
     if (document.readyState === 'loading') {

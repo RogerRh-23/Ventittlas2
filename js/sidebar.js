@@ -72,4 +72,21 @@
     document.addEventListener('includes:loaded', init);
     // also try init in case the sidebar was already present
     document.addEventListener('DOMContentLoaded', () => setTimeout(init, 50));
+
+// handle logout action if present
+document.addEventListener('includes:loaded', function() {
+    const logout = document.getElementById('sidebar-logout');
+    if (!logout) return;
+    logout.addEventListener('click', async function(e) {
+        e.preventDefault();
+        try {
+            const res = await fetch('/php/api/logout.php', { method: 'POST', credentials: 'same-origin' });
+            const j = await res.json().catch(() => null);
+            // redirect to home after logout
+            window.location.href = '/index.html';
+        } catch (err) {
+            window.location.href = '/index.html';
+        }
+    });
+});
 })();
