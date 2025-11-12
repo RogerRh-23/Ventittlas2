@@ -2,6 +2,7 @@
 // Wait for includes/templates then initialize filter UI and render all products into #all-products
 
 (function () {
+    const urlParams = new URLSearchParams(window.location.search);
     function fetchProducts() {
         return fetch('/php/api/products.php')
             .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
@@ -48,6 +49,25 @@
             if (onlyAvail && p.available === false) return false;
             if (min !== null && Number(p.price) < min) return false;
             if (max !== null && Number(p.price) > max) return false;
+            // apply url params filters (fallback when UI doesn't have a control)
+            const qFilter = urlParams.get('filter');
+            if (qFilter) {
+                if (qFilter === 'best_seller' && !p.best_seller) return false;
+                if (qFilter === 'on_sale') {
+                    if (p.on_sale !== undefined) {
+                        if (!p.on_sale) return false;
+                    } else if (p.sale_price !== undefined && p.price !== undefined) {
+                        if (!(Number(p.sale_price) < Number(p.price))) return false;
+                    }
+                }
+                if (qFilter === 'new') {
+                    if (p.is_new !== undefined) {
+                        if (!p.is_new) return false;
+                    }
+                }
+            }
+            const qDept = urlParams.get('department');
+            if (qDept && p.department !== qDept) return false;
             return true;
         });
     }
@@ -72,6 +92,21 @@
 
         // populate filters
         populateFilters(products);
+
+        // apply query params to UI controls if present
+        const qDept = urlParams.get('department');
+        const qFilter = urlParams.get('filter');
+        if (qDept) {
+            const depSelect = document.getElementById('filter-department');
+            if (depSelect) depSelect.value = qDept;
+        }
+        if (qFilter) {
+            if (qFilter === 'best_seller') {
+                const bestChk = document.getElementById('filter-best');
+                if (bestChk) bestChk.checked = true;
+            }
+            // other filters (on_sale, new) are applied in applyFilters via urlParams
+        }
 
         const applyBtn = document.getElementById('apply-filters');
         const clearBtn = document.getElementById('clear-filters');

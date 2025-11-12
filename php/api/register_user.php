@@ -1,9 +1,7 @@
 <?php
-// php/api/register_user.php
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../conect.php';
 
-// Read input: try JSON body first, fall back to form-encoded ($_POST)
 $body = file_get_contents('php://input');
 $data = json_decode($body, true);
 if (!is_array($data)) {
@@ -14,7 +12,6 @@ if (!is_array($data)) {
     $data = $_POST;
 }
 
-// normalize field names
 $get = function($en, $es) use ($data) {
     if (isset($data[$en]) && $data[$en] !== '') return $data[$en];
     if (isset($data[$es]) && $data[$es] !== '') return $data[$es];
@@ -26,7 +23,6 @@ $correo = trim((string)($get('correo_electronico','email') ?? ''));
 $contrasena = $get('contrasena','password');
 $rol = trim((string)($get('rol','role') ?? 'cliente'));
 
-// allowed roles based on table enum
 $allowed_roles = ['cliente','vendedor','administrador'];
 if (!in_array($rol, $allowed_roles, true)) {
     $rol = 'cliente';
@@ -45,7 +41,6 @@ if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
 }
 
 try {
-    // existence check
     $stmt = $pdo->prepare('SELECT 1 FROM Usuarios WHERE correo_electronico = ? LIMIT 1');
     $stmt->execute([$correo]);
     if ($stmt->fetch()) {
@@ -56,7 +51,6 @@ try {
 
     $hash = password_hash($contrasena, PASSWORD_DEFAULT);
 
-    // insert into table: nombre, correo_electronico, contrasena_hash, rol
     $sql = "INSERT INTO Usuarios (nombre, correo_electronico, contrasena_hash, rol) VALUES (:nombre, :correo, :hash, :rol)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
