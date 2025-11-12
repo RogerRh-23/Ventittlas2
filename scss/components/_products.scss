@@ -1,3 +1,33 @@
+/* Section CTA (Ver todo) and small section helpers */
+.section-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    /* multiple of 8 */
+}
+
+.section-cta .btn {
+    padding: 12px 24px;
+    /* vertical 12px, horizontal 24px (12 is multiple of 4 but acceptable for visual balance) */
+    border-radius: 12px;
+    /* multiple of 4 */
+    font-size: 16px;
+    /* multiple of 8/16 baseline */
+}
+
+.btn-outline {
+    background: transparent;
+    color: $primary-color;
+    border: 2px solid rgba($black, 0.08);
+}
+
+.section-sub {
+    margin-top: 8px;
+    margin-bottom: 12px;
+    color: lighten($black, 60%);
+    font-size: 16px;
+}
+
 /* Products grid and product card styles + price slider */
 
 .products-grid {

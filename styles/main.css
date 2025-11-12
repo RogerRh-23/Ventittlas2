@@ -89,6 +89,123 @@ h6 {
   font-weight: 900;
 }
 
+.site-footer {
+  background: #009929;
+  color: #ffffff;
+  margin-top: 32px;
+}
+
+.footer-inner {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 32px 16px;
+}
+
+.footer-logo {
+  height: 240px;
+  width: auto;
+  display: block;
+  margin: 16px 16px 16px 16px;
+}
+
+.footer-brand {
+  flex: 0 0 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.footer-tag {
+  margin: 8px 0 0 0;
+  color: white;
+  font-size: 16px;
+}
+
+.footer-nav {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.footer-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, auto));
+  gap: 16px 32px;
+  align-items: start;
+}
+
+/* on very wide screens, use 3 columns */
+@media (min-width: 1200px) {
+  .footer-nav ul {
+    grid-template-columns: repeat(3, minmax(0, auto));
+    gap: 16px 32px;
+  }
+}
+.footer-nav li {
+  margin: 0;
+}
+
+.footer-nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.footer-nav a:hover {
+  text-decoration: underline;
+}
+
+.footer-contact {
+  flex: 0 0 240px;
+}
+
+.footer-contact h4 {
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.footer-contact address {
+  font-style: normal;
+  color: white;
+  font-size: 16px;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  background: transparent;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.footer-bottom small {
+  color: white;
+  display: block;
+  font-size: 16px;
+}
+
+@media (max-width: 760px) {
+  .footer-inner {
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 12px;
+    align-items: center;
+  }
+  .footer-brand,
+  .footer-contact,
+  .footer-nav {
+    width: 100%;
+  }
+  .footer-nav ul {
+    align-items: center;
+  }
+}
 .site-header {
   position: relative;
 }
@@ -127,15 +244,19 @@ h6 {
 }
 
 .site-navbar {
+  /* position absolutely so the navbar overlays the header/banner image */
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.3);
+  /* translucent background + blur when over the header image */
+  background-color: rgba(255, 255, 255, 0.06);
   padding: 16px 0;
-  z-index: 10000;
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  z-index: 10050;
+  /* ensure it's above the banner */
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: none;
 }
 .site-navbar .container {
   display: flex;
@@ -179,6 +300,7 @@ h6 {
   display: inline-flex;
   align-items: center;
   background: #ffffff;
+  /* must remain white in all states */
   padding: 8px 16px;
   border-radius: 24px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
@@ -230,6 +352,78 @@ h6 {
 
 .nav-icon--invert {
   filter: brightness(0) invert(1);
+}
+
+/* solid state: used when banner scrolled past or on pages without banner */
+.site-navbar--solid {
+  background-color: #009929;
+  /* green */
+  color: #ffffff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.site-navbar--solid .nav-links li a {
+  color: #ffffff;
+}
+
+.site-navbar--solid .nav-search {
+  background: #ffffff;
+  /* keep search white */
+}
+
+/* When the body has this class we reserve space equal to the navbar height
+   so fixed navbar doesn't cover page content on pages without banner. */
+body.has-solid-navbar {
+  padding-top: 128px;
+  /* approximate navbar height (logo 96px + 16px padding top/bottom) */
+}
+
+/* On pages where body.has-solid-navbar is set, fix the navbar and keep layout spacing */
+body.has-solid-navbar .site-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* When the navbar is placed inside the header (index page), make it sticky
+   so it scrolls with the page and then sticks to the top of the viewport. */
+.site-header .site-navbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 10060;
+  /* slightly above the absolute/fixed navbar */
+}
+
+/* Section CTA (Ver todo) and small section helpers */
+.section-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  /* multiple of 8 */
+}
+
+.section-cta .btn {
+  padding: 12px 24px;
+  /* vertical 12px, horizontal 24px (12 is multiple of 4 but acceptable for visual balance) */
+  border-radius: 12px;
+  /* multiple of 4 */
+  font-size: 16px;
+  /* multiple of 8/16 baseline */
+}
+
+.btn-outline {
+  background: transparent;
+  color: #006414;
+  border: 2px solid rgba(25, 25, 25, 0.08);
+}
+
+.section-sub {
+  margin-top: 8px;
+  margin-bottom: 12px;
+  color: #b2b2b2;
+  font-size: 16px;
 }
 
 /* Products grid and product card styles + price slider */

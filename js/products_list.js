@@ -33,9 +33,27 @@
     function matchesFilter(product, attrs) {
         // attrs may have data-filter="best_seller" or data-department / data-category
         if (attrs.filter) {
-            // treat 'best_seller' specially (boolean)
-            if (attrs.filter === 'best_seller') return !!product.best_seller;
-            return product[attrs.filter];
+            const f = attrs.filter;
+            // common boolean flags mapping (try several possible property names)
+            const boolMap = {
+                best_seller: ['best_seller', 'bestSeller', 'best_seller_flag'],
+                on_sale: ['on_sale', 'onSale', 'is_on_sale', 'onSaleFlag'],
+                new: ['is_new', 'isNew', 'new', 'latest']
+            };
+
+            if (boolMap[f]) {
+                for (const key of boolMap[f]) {
+                    if (product[key] !== undefined) return !!product[key];
+                }
+                // fallback heuristics
+                if (f === 'on_sale' && product.sale_price !== undefined && product.price !== undefined) {
+                    return Number(product.sale_price) < Number(product.price);
+                }
+            }
+
+            // generic check (if product has a property named as the filter)
+            if (product[f] !== undefined) return !!product[f];
+            return false;
         }
         if (attrs.department) {
             return product.department === attrs.department;
@@ -80,6 +98,32 @@
             // clear container
             container.innerHTML = '';
             list.forEach(p => renderProduct(container, p, template));
+            // add a "Ver todo" CTA under the section (link to products listing with query params)
+            try {
+                const section = container.closest('section') || container.parentElement;
+                if (section) {
+                    // remove existing CTA if any
+                    const existing = section.querySelector('.section-cta');
+                    if (existing) existing.remove();
+
+                    const cta = document.createElement('div');
+                    cta.className = 'section-cta';
+                    cta.style.marginTop = '16px';
+                    const a = document.createElement('a');
+                    a.className = 'btn btn-outline';
+                    // build href with params
+                    const params = new URLSearchParams();
+                    if (attrs.filter) params.set('filter', attrs.filter);
+                    if (attrs.department) params.set('department', attrs.department);
+                    const href = '/pages/products.html' + (params.toString() ? ('?' + params.toString()) : '');
+                    a.href = href;
+                    a.textContent = 'Ver todo';
+                    cta.appendChild(a);
+                    section.appendChild(cta);
+                }
+            } catch (e) {
+                console.warn('Could not append Ver todo CTA', e);
+            }
         });
     });
 })();
