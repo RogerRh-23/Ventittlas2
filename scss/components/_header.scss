@@ -19,7 +19,7 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: center;
-    color: $font-color !important;
+    color: $font-color;
     pointer-events: none;
 }
 
@@ -27,12 +27,10 @@
     font-size: 3.5rem;
     margin: 0 0 8px 0;
     pointer-events: auto;
-    color: $font-color !important;
 }
 
 .header-container p {
     font-size: 2.5rem;
     margin: 0;
     pointer-events: auto;
-    color: $font-color !important;
 }

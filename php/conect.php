@@ -27,7 +27,6 @@ $dbUser = getenv('DB_USER') ?: 'Kika';
 $dbPass = getenv('DB_PASS') ?: 'Kikaesunperro1214-';
 $dbPort = getenv('DB_PORT') ?: '';
 
-// build DSN, include port if provided
 if ($dbPort !== '') {
     $dsn = "mysql:host=$dbHost;port=$dbPort;dbname=$dbName;charset=utf8mb4";
 } else {
