@@ -97,7 +97,11 @@
             const caption = document.querySelector('#inventory-table caption');
             caption.textContent = 'Actualizando...';
             try {
+<<<<<<< HEAD
                 const res = await fetch('.../php/api/products.php');
+=======
+                const res = await fetch('/php/api/products.php');
+>>>>>>> ea15961e03d842138a13670500c726a7afd1bfd6
                 if (!res.ok) throw new Error('Error fetching products: ' + res.status);
                 const data = await res.json();
                 // Expecting array of products
