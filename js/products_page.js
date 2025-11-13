@@ -130,6 +130,31 @@
         if (labelMin) labelMin.textContent = Number(rangeMin.value).toFixed(0);
         if (labelMax) labelMax.textContent = Number(rangeMax.value).toFixed(0);
 
+        // Create (or find) the visual fill bar inside the range-wrap
+        const rangeWrap = document.querySelector('.range-wrap');
+        let rangeFill = rangeWrap ? rangeWrap.querySelector('.range-fill') : null;
+        if (rangeWrap && !rangeFill) {
+            rangeFill = document.createElement('div');
+            rangeFill.className = 'range-fill';
+            rangeWrap.appendChild(rangeFill);
+        }
+
+        function updateRangeFill() {
+            if (!rangeFill || !rangeMin || !rangeMax) return;
+            const min = Number(rangeMin.min);
+            const max = Number(rangeMax.max);
+            const a = Number(rangeMin.value);
+            const b = Number(rangeMax.value);
+            // protect against division by zero
+            const span = (max - min) || 1;
+            const pA = ((a - min) / span) * 100;
+            const pB = ((b - min) / span) * 100;
+            const left = Math.min(pA, pB);
+            const right = Math.max(pA, pB);
+            rangeFill.style.left = left + '%';
+            rangeFill.style.width = (right - left) + '%';
+        }
+
         function doRender() {
             const filtered = applyFilters(products);
             renderList(container, filtered, template);
@@ -143,6 +168,7 @@
                     rangeMin.value = rangeMax.value;
                 }
                 if (labelMin) labelMin.textContent = Number(rangeMin.value).toFixed(0);
+                updateRangeFill();
                 doRender();
             });
         }
@@ -153,6 +179,7 @@
                     rangeMax.value = rangeMin.value;
                 }
                 if (labelMax) labelMax.textContent = Number(rangeMax.value).toFixed(0);
+                updateRangeFill();
                 doRender();
             });
         }
@@ -167,6 +194,7 @@
                 rangeMax.value = rangeMax.max;
                 if (labelMin) labelMin.textContent = Number(rangeMin.value).toFixed(0);
                 if (labelMax) labelMax.textContent = Number(rangeMax.value).toFixed(0);
+                updateRangeFill();
             }
             document.getElementById('filter-best').checked = false;
             document.getElementById('filter-available').checked = false;
@@ -174,6 +202,7 @@
         });
 
         // initial render
+        updateRangeFill();
         doRender();
     }
 
