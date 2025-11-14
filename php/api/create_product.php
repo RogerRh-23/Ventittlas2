@@ -25,6 +25,14 @@ $stock = isset($input['stock']) ? (int)$input['stock'] : 1;
 $categoriaName = isset($input['categoria']) ? trim($input['categoria']) : null;
 $estado = isset($input['estado']) ? trim($input['estado']) : 'disponible';
 
+
+$porcentaje_descuento = isset($input['porcentaje_descuento']) ? $input['porcentaje_descuento'] : 0;
+$imagen_base64 = isset($input['imagen_base64']) ? $input['imagen_base64'] : null;
+$imagen_nombre = isset($input['imagen_nombre']) ? trim($input['imagen_nombre']) : null;
+$imagen_url = isset($input['imagen_url']) ? trim($input['imagen_url']) : null;
+$id_proveedor = isset($input['id_proveedor']) && $input['id_proveedor'] !== '' ? (int)$input['id_proveedor'] : null;
+$id_vendedor = isset($input['id_vendedor']) && $input['id_vendedor'] !== '' ? (int)$input['id_vendedor'] : null;
+
 $allowedEstados = ['disponible', 'sin stock'];
 
 // Basic validation
@@ -63,11 +71,31 @@ try {
         }
     }
 
-    // fecha_publicacion y descuento_activo añadidos para coincidir con la estructura de la tabla
-    // id_vendedor se deja NULL por defecto aquí (puede añadirse si el usuario autenticado proporciona un id)
+    // fecha_publicacion y campos adicionales: porcentaje_descuento, imagen_url, id_proveedor
     $fecha_publicacion = date('Y-m-d H:i:s');
-    $insert = $pdo->prepare('INSERT INTO Productos (nombre, descripcion, precio, stock, id_categoria, id_vendedor, fecha_publicacion, estado, descuento_activo) VALUES (?, ?, ?, ?, ?, NULL, NOW(), ?, 0)');
-    $insert->execute([$nombre, $descripcion, $precio, $stock, $id_categoria, $estado]);
+
+    // Handle image: either imagen_url provided, or imagen_base64 + imagen_nombre -> save file
+    if ($imagen_base64 && !$imagen_url) {
+        $uploadsDir = __DIR__ . '/../../assets/img/products';
+        if (!is_dir($uploadsDir)) {
+            @mkdir($uploadsDir, 0755, true);
+        }
+        // sanitize filename
+        $safeName = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', ($imagen_nombre ?: 'img'));
+        $ext = pathinfo($safeName, PATHINFO_EXTENSION);
+        if (!$ext) $ext = 'png';
+        $filename = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
+        $filePath = $uploadsDir . '/' . $filename;
+        $decoded = base64_decode($imagen_base64);
+        if ($decoded !== false) {
+            @file_put_contents($filePath, $decoded);
+            // store web path
+            $imagen_url = '/assets/img/products/' . $filename;
+        }
+    }
+
+    $insert = $pdo->prepare('INSERT INTO Productos (nombre, descripcion, precio, stock, id_categoria, id_vendedor, fecha_publicacion, estado, porcentaje_descuento, imagen_url, id_proveedor) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)');
+    $insert->execute([$nombre, $descripcion, $precio, $stock, $id_categoria, $id_vendedor, $estado, $porcentaje_descuento, $imagen_url, $id_proveedor]);
     $newId = (int)$pdo->lastInsertId();
 
     $pdo->commit();
@@ -83,10 +111,12 @@ try {
             'precio' => (float)$precio,
             'stock' => $stock,
             'id_categoria' => $id_categoria,
-            'id_vendedor' => null,
+            'id_vendedor' => $id_vendedor,
             'fecha_publicacion' => $fecha_publicacion,
             'estado' => $estado,
-            'descuento_activo' => 0,
+            'porcentaje_descuento' => (float)$porcentaje_descuento,
+            'imagen_url' => $imagen_url,
+            'id_proveedor' => $id_proveedor,
         ],
     ], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {

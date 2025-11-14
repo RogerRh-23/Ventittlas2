@@ -17,7 +17,77 @@ $get = function($en, $es) use ($data) {
     if (isset($data[$es]) && $data[$es] !== '') return $data[$es];
     return null;
 };
+// Determine request type: usuario (default) or proveedor
+$tipo = trim((string)($get('tipo','type') ?? 'usuario'));
 
+if ($tipo === 'proveedor') {
+    $nombre_empresa = trim((string)($get('nombre_empresa','company_name') ?? ''));
+    $rfc = trim((string)($get('rfc') ?? ''));
+    $nombre_contacto = trim((string)($get('nombre_contacto','contact_name') ?? ''));
+    $telefono = trim((string)($get('telefono','phone') ?? ''));
+    $correo_prov = trim((string)($get('correo_electronico','email') ?? ''));
+    $direccion = trim((string)($get('direccion','address') ?? ''));
+    $tipo_mercancia = trim((string)($get('tipo_mercancia','goods_type') ?? ''));
+    $estado = trim((string)($get('estado','state') ?? 'activo'));
+
+    if ($nombre_empresa === '') {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'message' => 'Faltan campos obligatorios: nombre_empresa']);
+        exit;
+    }
+
+    if ($correo_prov !== '' && !filter_var($correo_prov, FILTER_VALIDATE_EMAIL)) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'message' => 'Email inválido para proveedor']);
+        exit;
+    }
+
+    try {
+        // check duplicates by RFC or email if provided
+        if ($rfc !== '') {
+            $stmt = $pdo->prepare('SELECT 1 FROM Proveedores WHERE rfc = ? LIMIT 1');
+            $stmt->execute([$rfc]);
+            if ($stmt->fetch()) {
+                http_response_code(409);
+                echo json_encode(['ok' => false, 'message' => 'El RFC ya está registrado']);
+                exit;
+            }
+        }
+        if ($correo_prov !== '') {
+            $stmt = $pdo->prepare('SELECT 1 FROM Proveedores WHERE correo_electronico = ? LIMIT 1');
+            $stmt->execute([$correo_prov]);
+            if ($stmt->fetch()) {
+                http_response_code(409);
+                echo json_encode(['ok' => false, 'message' => 'El correo del proveedor ya está registrado']);
+                exit;
+            }
+        }
+
+        $sql = "INSERT INTO Proveedores (nombre_empresa, rfc, nombre_contacto, telefono, correo_electronico, direccion, tipo_mercancia, estado, fecha_alta) VALUES (:nombre_empresa, :rfc, :nombre_contacto, :telefono, :correo, :direccion, :tipo_mercancia, :estado, NOW())";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':nombre_empresa' => $nombre_empresa,
+            ':rfc' => $rfc,
+            ':nombre_contacto' => $nombre_contacto,
+            ':telefono' => $telefono,
+            ':correo' => $correo_prov,
+            ':direccion' => $direccion,
+            ':tipo_mercancia' => $tipo_mercancia,
+            ':estado' => $estado
+        ]);
+
+        $id = $pdo->lastInsertId();
+        echo json_encode(['ok' => true, 'message' => 'Proveedor registrado', 'id' => $id]);
+        exit;
+    } catch (PDOException $e) {
+        error_log('register_user (proveedor) error: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'message' => 'Error interno al registrar proveedor']);
+        exit;
+    }
+}
+
+// Default: registro de usuario
 $nombre = trim((string)($get('nombre','full_name') ?? ''));
 $correo = trim((string)($get('correo_electronico','email') ?? ''));
 $contrasena = $get('contrasena','password');

@@ -26,10 +26,32 @@ if ($id <= 0) {
     exit;
 }
 
-$allowedEstados = ['disponible', 'sin stock', 'reservado', 'vendido'];
+$allowedEstados = ['disponible', 'sin stock'];
+
+$imagen_base64 = isset($input['imagen_base64']) ? $input['imagen_base64'] : null;
+$imagen_nombre = isset($input['imagen_nombre']) ? trim($input['imagen_nombre']) : null;
+$imagen_url_input = isset($input['imagen_url']) ? trim($input['imagen_url']) : null;
 
 $fields = [];
 $params = [];
+
+// If an image is provided as base64 and no imagen_url was given, save it and set imagen_url_input
+if ($imagen_base64 && !$imagen_url_input) {
+    $uploadsDir = __DIR__ . '/../../assets/img/products';
+    if (!is_dir($uploadsDir)) {
+        @mkdir($uploadsDir, 0755, true);
+    }
+    $safeName = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', ($imagen_nombre ?: 'img'));
+    $ext = pathinfo($safeName, PATHINFO_EXTENSION);
+    if (!$ext) $ext = 'png';
+    $filename = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
+    $filePath = $uploadsDir . '/' . $filename;
+    $decoded = base64_decode($imagen_base64);
+    if ($decoded !== false) {
+        @file_put_contents($filePath, $decoded);
+        $imagen_url_input = '/assets/img/products/' . $filename;
+    }
+}
 
 if (isset($input['nombre'])) {
     $fields[] = 'nombre = ?';
@@ -62,6 +84,27 @@ if (isset($input['estado'])) {
     }
     $fields[] = 'estado = ?';
     $params[] = $estado;
+}
+
+if (isset($input['porcentaje_descuento'])) {
+    $pct = is_numeric($input['porcentaje_descuento']) ? number_format((float)$input['porcentaje_descuento'], 2, '.', '') : 0;
+    $fields[] = 'porcentaje_descuento = ?';
+    $params[] = $pct;
+}
+
+if ($imagen_url_input !== null) {
+    $fields[] = 'imagen_url = ?';
+    $params[] = $imagen_url_input;
+}
+
+if (isset($input['id_proveedor'])) {
+    $fields[] = 'id_proveedor = ?';
+    $params[] = $input['id_proveedor'] !== '' ? (int)$input['id_proveedor'] : null;
+}
+
+if (isset($input['id_vendedor'])) {
+    $fields[] = 'id_vendedor = ?';
+    $params[] = $input['id_vendedor'] !== '' ? (int)$input['id_vendedor'] : null;
 }
 
 $categoriaName = isset($input['categoria']) ? trim($input['categoria']) : null;

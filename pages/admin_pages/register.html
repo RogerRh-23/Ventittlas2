@@ -41,6 +41,48 @@
             </form>
         </section>
 
+        <section id="registro-proveedor">
+            <h2>Registrar Proveedor</h2>
+            <form id="form-proveedor">
+                <label>Nombre de la empresa<br>
+                    <input type="text" name="nombre_empresa" id="nombre_empresa" required>
+                </label>
+
+                <label>RFC<br>
+                    <input type="text" name="rfc" id="rfc">
+                </label>
+
+                <label>Nombre de contacto<br>
+                    <input type="text" name="nombre_contacto" id="nombre_contacto">
+                </label>
+
+                <label>Teléfono<br>
+                    <input type="tel" name="telefono" id="telefono">
+                </label>
+
+                <label>Correo<br>
+                    <input type="email" name="correo_electronico" id="correo_electronico_prov">
+                </label>
+
+                <label>Dirección<br>
+                    <textarea name="direccion" id="direccion" rows="3"></textarea>
+                </label>
+
+                <label>Tipo de mercancía<br>
+                    <input type="text" name="tipo_mercancia" id="tipo_mercancia">
+                </label>
+
+                <label>Estado<br>
+                    <select name="estado" id="estado">
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </label>
+
+                <p><button type="submit">Registrar Proveedor</button></p>
+                <div id="registro_proveedor_msg" class="msg"></div>
+            </form>
+        </section>
     </main>
 
     <script src="../../js/include.js"></script>
@@ -72,6 +114,39 @@
             if (r.ok) {
                 if (r.body && (r.body.success === true || r.body.ok === true)) {
                     msg.textContent = 'Usuario registrado correctamente';
+                } else if (r.body && (r.body.message || r.body.error)) {
+                    msg.textContent = r.body.message || r.body.error;
+                } else if (r.body) {
+                    msg.textContent = 'Registro completado (respuesta inesperada): ' + JSON.stringify(r.body);
+                } else {
+                    msg.textContent = 'Registro completado (sin JSON devuelto).';
+                }
+            } else {
+                msg.textContent = 'Error HTTP ' + r.status + (r.body && (r.body.message || r.body.error) ? (': ' + (r.body.message || r.body.error)) : '');
+            }
+        });
+
+        // Handler para registro de proveedores
+        document.getElementById('form-proveedor').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                tipo: 'proveedor',
+                nombre_empresa: e.target.nombre_empresa.value.trim(),
+                rfc: e.target.rfc.value.trim(),
+                nombre_contacto: e.target.nombre_contacto.value.trim(),
+                telefono: e.target.telefono.value.trim(),
+                correo_electronico: e.target.correo_electronico.value.trim(),
+                direccion: e.target.direccion.value.trim(),
+                tipo_mercancia: e.target.tipo_mercancia.value.trim(),
+                estado: e.target.estado.value
+            };
+            const msg = document.getElementById('registro_proveedor_msg');
+            msg.textContent = 'Enviando...';
+            const r = await postJSON('/php/api/register_user.php', data);
+            if (r.ok) {
+                if (r.body && (r.body.success === true || r.body.ok === true)) {
+                    msg.textContent = 'Proveedor registrado correctamente';
+                    e.target.reset();
                 } else if (r.body && (r.body.message || r.body.error)) {
                     msg.textContent = r.body.message || r.body.error;
                 } else if (r.body) {
