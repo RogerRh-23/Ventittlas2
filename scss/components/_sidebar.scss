@@ -1,13 +1,14 @@
+// Sidebar funcional y visualmente correcta
 .app-sidebar {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
     gap: 0;
     padding: 24px 0 0 0;
     background: $app-sidebar-bg;
     color: $app-sidebar-color;
     min-height: 100vh;
-    width: $app-sidebar-width;
+    width: 260px;
     border-radius: 0 $app-sidebar-radius $app-sidebar-radius 0;
     box-shadow: $app-sidebar-shadow;
     position: fixed;
@@ -24,13 +25,13 @@
 }
 
 .sidebar-toggle {
-    position: absolute;
-    top: 24px;
-    left: 12px;
+    position: relative;
+    margin: 0 0 16px 0;
+    align-self: flex-start;
     background: #fff;
-    border: 2px solid #009929;
+    border: 2px solid $secondary-color;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-    color: #009929;
+    color: $secondary-color;
     cursor: pointer;
     padding: 8px;
     border-radius: 12px;
@@ -56,7 +57,7 @@
     left: 4px;
     right: 4px;
     height: 6px;
-    background: #009929;
+    background: $secondary-color;
     border-radius: 6px;
     transition: all 0.35s cubic-bezier(.68, -0.55, .27, 1.55);
     border: 1px solid #fff;
@@ -127,43 +128,49 @@
     background: transparent;
 }
 
-.sidebar-item a:hover,
-.sidebar-item a.active {
-    background: #fff;
-    color: #009929;
-}
-
-.sidebar-item a img {
-    width: 24px;
-    height: 24px;
-    margin-right: 4px;
-}
-
+.sidebar-item a img,
 .sidebar-icon {
     width: 24px;
     height: 24px;
-    display: block;
     margin-right: 4px;
-    filter: invert(1) brightness(1);
+    display: block;
+    filter: brightness(0) invert(1); // iconos blancos por defecto
     transition: filter 0.2s;
 }
 
-.app-sidebar.collapsed .sidebar-icon {
-    width: 20px !important;
-    height: 20px !important;
-    margin-right: 0 !important;
-}
 
 .sidebar-link.active .sidebar-icon,
 .sidebar-link:hover .sidebar-icon {
-    filter: invert(41%) sepia(98%) saturate(1000%) hue-rotate(88deg) brightness(1.1);
+    filter: brightness(0) saturate(100%) invert(41%) sepia(98%) saturate(1000%) hue-rotate(88deg) brightness(1.1); // icono verde activo/hover
 }
 
+
+.sidebar-link-panel .sidebar-icon {
+    filter: brightness(0) invert(1); // icono blanco por defecto
+}
+
+
+.sidebar-link-panel.active .sidebar-icon,
+.sidebar-link-panel:hover .sidebar-icon {
+    filter: brightness(0) saturate(100%) invert(41%) sepia(98%) saturate(1000%) hue-rotate(88deg) brightness(1.1); // icono verde activo/hover
+}
+
+@media (min-width: 900px) {
+    .sidebar-icon {
+        display: block !important;
+    }
+}
+
+// Textos siempre blancos, solo visibles en sidebar expandida
+
 .sidebar-text {
-    display: none;
+    color: $app-sidebar-color;
+    font-weight: $font-weight-bold;
+    font-size: 1.25rem;
     transition: opacity 0.2s, margin-left 0.2s;
-    opacity: 0;
+    opacity: 1;
     margin-left: 0;
+    display: inline-block;
 }
 
 .app-sidebar.collapsed .sidebar-text {
@@ -172,54 +179,38 @@
     margin-left: 0 !important;
 }
 
-.sidebar-link:hover .sidebar-text,
-.sidebar-link.active .sidebar-text {
-    display: inline;
-    opacity: 1;
-    margin-left: 8px;
-    color: #009929;
+.app-sidebar.collapsed .sidebar-icon {
+    display: block !important;
+    margin: 0 auto !important;
 }
 
-.sidebar-link {
+.app-sidebar.collapsed .sidebar-item {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+// Solo cambia el fondo y SVG al hover/activo
+.sidebar-item a:hover {
+    background: rgba(255, 255, 255, 0.12);
     color: $app-sidebar-color;
-    fill: $app-sidebar-color;
 }
 
-.sidebar-link .sidebar-text {
-    color: $app-sidebar-color;
-    font-weight: $font-weight-bold;
-    font-size: 1.25rem;
-    transition: color 0.2s;
+.sidebar-item a.active {
+    background: #fff !important;
+    color: $secondary-color !important;
 }
 
-.sidebar-link.active,
-.sidebar-link:hover {
-    background: #fff;
-    color: #009929;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
-    border-radius: 12px;
-    border: 2px solid #009929;
+.sidebar-item a.active .sidebar-text {
+    color: $secondary-color !important;
 }
 
-.sidebar-link.active .sidebar-text,
-.sidebar-link:hover .sidebar-text {
-    color: #009929;
+.sidebar-item a.active .sidebar-icon {
+    filter: brightness(0) saturate(100%) invert(41%) sepia(98%) saturate(1000%) hue-rotate(88deg) brightness(1.1) !important;
 }
 
-.sidebar-link.active .sidebar-icon,
-.sidebar-link:hover .sidebar-icon {
-    filter: none;
-}
-
-.sidebar-link-panel.active .sidebar-icon,
-.sidebar-link-panel:hover .sidebar-icon,
-.sidebar-link-inventory.active .sidebar-icon,
-.sidebar-link-inventory:hover .sidebar-icon,
-.sidebar-link-register.active .sidebar-icon,
-.sidebar-link-register:hover .sidebar-icon {
-    filter: none;
-}
-
+// Logout
 .sidebar-link-logout {
     color: #e53935 !important;
 }
@@ -237,10 +228,14 @@
     width: 100%;
 }
 
-// Responsive: sidebar se mantiene funcional en desktop y mobile
+// Responsive: sidebar funcional en desktop y mobile
 @media (max-width: 900px) {
     .app-sidebar {
         width: $app-sidebar-width-collapsed;
         border-radius: 0 $app-sidebar-radius-collapsed $app-sidebar-radius-collapsed 0;
+    }
+
+    .sidebar-text {
+        display: none !important;
     }
 }
