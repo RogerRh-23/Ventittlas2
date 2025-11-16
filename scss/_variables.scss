@@ -33,3 +33,12 @@ $scrollbar-width: 8px;
 $scrollbar-thumb-color: darken($background-color, 10%);
 $scrollbar-border-radius: 16px;
 $scrollbar-color: linear-gradient(#5ab507, #a9e159);
+
+// Sidebar styles
+$app-sidebar-width: 72px;
+$app-sidebar-width-collapsed: 56px;
+$app-sidebar-radius: 24px;
+$app-sidebar-radius-collapsed: 16px;
+$app-sidebar-bg: $secondary-color;
+$app-sidebar-color: $white;
+$app-sidebar-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
